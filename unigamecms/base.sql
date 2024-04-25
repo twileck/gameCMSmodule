@@ -1,5 +1,5 @@
 -- Добавляем новые колонки в таблицу config__bank, если их нет
-ALTER TABLE config__bank
-    ADD COLUMN foxypay INT(11) DEFAULT 1,
-    ADD COLUMN foxypay_token VARCHAR(255),
-    ADD COLUMN foxypay_currency VARCHAR(10);
+ALTER TABLE `config__bank` ADD `foxypay` INT(11) NULL DEFAULT '1';
+ALTER TABLE `config__bank` ADD `foxypay_token` VARCHAR(255) NULL DEFAULT '0';
+ALTER TABLE `config__bank` ADD `foxypay_currency` VARCHAR(255) NULL DEFAULT 'UAH';
+ALTER TABLE `config__bank` ADD `site_currency` VARCHAR(255) NULL DEFAULT 'UAH';

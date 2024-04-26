@@ -139,6 +139,48 @@ if(isset($_POST['editFoxyPaySystem'])) {
 	exit('<p class="text-success">Настройки изменены!</p>');
 }
 ```
+- Дальше находим строку начиная с if (isset($_POST['change_value'])) и меняем код на этот:
+```php
+if (isset($_POST['change_value'])) {
+	$table = check($_POST['table'], null);
+	$attr = check($_POST['attr'], null);
+	$value = check($_POST['value'], null);
+	$id = check($_POST['id'], "int");
+
+	if (empty($attr)) {
+		exit();
+	}
+	if (check_for_php($_POST['value'])) {
+		exit();
+	}
+	if (ifSafeMode()) {
+		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['RUB', 'USD', 'EUR', 'UAH']))) {
+			exit();
+		}
+		if (
+			!in_array(
+				check($_POST['table'], null),
+				['config', 'users', 'config__bank', 'config__secondary', 'config__email', 'config__prices']
+			)
+		) {
+			exit();
+		}
+	}
+
+	if (empty($value) && $value != 0) {
+		$value = '';
+	}
+
+	if (empty($id)) {
+		$STH = pdo()->prepare("UPDATE $table SET `$attr`=:value");
+		$STH->execute([':value' => $value]);
+	} else {
+		$STH = pdo()->prepare("UPDATE $table SET `$attr`=:value WHERE `id`='$id' LIMIT 1");
+		$STH->execute([':value' => $value]);
+	}
+	exit();
+}
+```
 
 #11 js
 - Открываем `ajax\performers\acp.min.js`и в самый низ вставляем 

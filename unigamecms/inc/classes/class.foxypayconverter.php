@@ -23,7 +23,11 @@ class FoxypayConverter {
         }
         
         // Возвращаем курс обмена между указанными валютами или null, если курс не найден
-        return $this->exchangeRates[$fromCurrency][$toCurrency] ?? null;
+        if (isset($this->exchangeRates[$fromCurrency][$toCurrency])) {
+            return $this->exchangeRates[$fromCurrency][$toCurrency];
+        } else {
+            return null; // или null, если курс не найден
+        }
     }
     
     public function convertCurrency($amountInCents, $fromCurrency, $toCurrency) {

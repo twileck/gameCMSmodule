@@ -122,7 +122,7 @@ if(isset($_POST['editFoxyPaySystem'])) {
 }
 
 ```
-- Дальше находим строку с if (isset($_POST['change_value'])) и меняем код на этот:
+- Дальше находим строку с начиная с if (isset($_POST['change_value'])) и меняем код на этот:
 ```php
 if (isset($_POST['change_value'])) {
 	$table = check($_POST['table'], null);

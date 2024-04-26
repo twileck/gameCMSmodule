@@ -24,7 +24,7 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 		if (strtoupper($requestData["sign"]) !== strtoupper($signature)) {
 			throw new Exception('Invalid signature');
 		}
-		$siteCurrency = $currentCurrency;
+		$siteCurrency = $merchantsSettings->site_currency;
 		$amountInCents = $requestData["amount"];    // Сумма котора пришла
 		$amountCurrency = $requestData["currency"];  // Код валюты
 

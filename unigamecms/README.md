@@ -55,9 +55,9 @@ case 'foxypay':
 		if($cashierSettings->foxypay_currency == "UAH"){
 			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("UAH", 2)) * 1000;
 		}if($cashierSettings->foxypay_currency == "USD"){
-			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("USD", 2)) * 100;
+			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("USD", 2)) * 1000;
 		}if($cashierSettings->foxypay_currency == "EUR"){
-			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 2)) * 100;
+			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 2)) * 1000;
 		}
 	}else{
 		$amount = $amount * 100;

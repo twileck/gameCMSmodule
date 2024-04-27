@@ -32,7 +32,11 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
             $amountInSiteCurrency = (new FoxypayConverter($siteCurrency))->convertCurrency($amountInCents, $siteCurrency, $amountCurrency);
         }else{
             $convertCurrency = (new CurrencyConverter())->getCurrencyRUB($requestData["currency"], 2);
-            $convert = $requestData["amount"] * $convertCurrency / 1000;
+			if ($requestData["currency"] == "UAH") {
+				$convert = $requestData["amount"] * $convertCurrency / 1000;
+			} else {
+				$convert = $requestData["amount"] * $convertCurrency / 100;
+			}
             $amountInSiteCurrency = round($convert);
         }
         

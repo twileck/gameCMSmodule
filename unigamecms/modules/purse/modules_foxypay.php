@@ -28,17 +28,19 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 		$amountInCents = $requestData["amount"];    // Сумма котора пришла
 		$amountCurrency = $requestData["currency"];  // Код валюты
 
-        if($siteCurrency != "RUB"){
-            $amountInSiteCurrency = (new FoxypayConverter($siteCurrency))->convertCurrency($amountInCents, $siteCurrency, $amountCurrency);
-        }else{
-            $convertCurrency = (new CurrencyConverter())->getCurrencyRUB($requestData["currency"], 2);
-			if($requestData["currency"] == "UAH"){
+		if ($siteCurrency != "RUB") {
+			$amountInSiteCurrency = (new FoxypayConverter($siteCurrency))->convertCurrency($amountInCents, $siteCurrency, $amountCurrency);
+		} else {
+			if ($requestData["currency"] == "UAH") {
+				$convertCurrency = (new CurrencyConverter())->getCurrencyRUB("UAH", 2);
 				$convert = $requestData["amount"] * $convertCurrency / 1000;
-			}else{
-				$convert = $requestData["amount"] * $convertCurrency / 100;
+			} else {
+				$convertCurrency = (new CurrencyConverter())->getCurrencyRUB($requestData["currency"], 0);
+				$convert = $requestData["amount"] / 100;
+				$convert = $convert * $convertCurrency;
 			}
-            $amountInSiteCurrency = round($convert);
-        }
+			$amountInSiteCurrency = round($convert);
+		}
         
 		$amount = clean($amountInSiteCurrency, 'float');
 		$payNumber = clean($requestData["code"], 'varchar');

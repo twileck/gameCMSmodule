@@ -54,9 +54,13 @@ case 'foxypay':
 		if($cashierSettings->foxypay_currency == "UAH"){
 			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("UAH", 2)) * 1000;
 		}if($cashierSettings->foxypay_currency == "USD"){
-			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("USD", 2)) * 100;
+			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("USD", 0);
+			$amount = number_format($amount, 2, '.', '');
+			$amount = $amount * 100;
 		}if($cashierSettings->foxypay_currency == "EUR"){
-			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 2)) * 100;
+			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 3);
+			$amount = number_format($amount, 3, '.', '');
+			$amount = $amount * 100;
 		}
 	}else{
 		$amount = $amount * 100;
@@ -172,8 +176,8 @@ if (isset($_POST['change_value'])) {
 	if (check_for_php($_POST['value'])) {
 		exit();
 	}
-	if (ifSafeMode()) {
-		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['RUB', 'USD', 'EUR', 'UAH']))) {
+	if ($safe_mode == 1) {
+		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['RUB', 'USD', 'EUR']))) {
 			exit();
 		}
 		if (
@@ -191,10 +195,10 @@ if (isset($_POST['change_value'])) {
 	}
 
 	if (empty($id)) {
-		$STH = pdo()->prepare("UPDATE $table SET `$attr`=:value");
+		$STH = $pdo->prepare("UPDATE `$table` SET `$attr`=:value");
 		$STH->execute([':value' => $value]);
 	} else {
-		$STH = pdo()->prepare("UPDATE $table SET `$attr`=:value WHERE `id`='$id' LIMIT 1");
+		$STH = $pdo->prepare("UPDATE `$table` SET `$attr`=:value WHERE `id`='$id' LIMIT 1");
 		$STH->execute([':value' => $value]);
 	}
 	exit();
@@ -306,7 +310,7 @@ function editFoxyPaySystem() {
 	<div id="edit_foxypay_result"></div>
 	<div class="bs-callout bs-callout-info mt-10">
 		<h5>
-			<a target="_blank" href="https://github.com/developer380tigris/foxypay/tree/main/unigamecms">
+			<a target="_blank" href="https://github.com/twileck/gameCMSmodule/tree/master/unigamecms">
 				<span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции
 			</a>
 		</h5>

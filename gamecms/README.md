@@ -215,7 +215,7 @@ function editFoxyPaySystem() {
 	</div>
 </div>
 ```
-- Перед ними ставим следующий код
+- Между ними ставим следующий код
 ```html
 <div class="block">
 	<div class="block_head">

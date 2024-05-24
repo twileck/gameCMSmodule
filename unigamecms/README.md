@@ -230,21 +230,41 @@ function editFoxyPaySystem() {
 
 - находим `{/if}` и после него вставляем код
 ```html
-	{if('{foxypay}' == '1')}
-		<div class="col-md-6">
-			<div class="block">
-				<div class="block_head">
-					FoxyPay - оплата картами Украины, PerfectMoney и криптовалюта.
-				</div>
-				<label for="number_foxypay">
-					<img src="../files/merchants/foxypay.png" alt="foxypay">
-				</label>
-				<input class="form-control" id="number_foxypay" placeholder="Укажите сумму" value="{price}">
-				<div id="balance_result_foxypay" class="mt-3"></div>
-				<button class="btn btn-outline-primary btn-xl" onclick="refill_balance('foxypay');">Пополнить баланс</button>
-			</div>
-		</div>
-	{/if}
+{if('{foxypay}' == '1')}
+    <div class="custom-block">
+        <div class="block">
+            <div class="block_head">
+                FoxyPay - оплата картами Украины, PerfectMoney и криптовалюта.
+            </div>
+            <div class="image-container">
+                <label for="number_foxypay">
+                    <img src="../files/merchants/foxypay.png" alt="foxypay">
+                </label>
+            </div>
+            <input class="form-control" id="number_foxypay" placeholder="Укажите сумму" value="{price}">
+            <div id="balance_result_foxypay" class="mt-3"></div>
+            <button class="btn btn-outline-primary btn-xl" onclick="refill_balance('foxypay');">Пополнить баланс</button>
+        </div>
+    </div>
+{/if}
+
+<style>
+    .image-container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .image-container label {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .image-container img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
 ```
 
 ## Шаблон для админ панели

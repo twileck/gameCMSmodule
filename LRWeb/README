@@ -1,11 +1,6 @@
-### Установка модуля
-
-- Перетащить папку **module_page_pay** в раздел **/app/modules/**
-- Согласиться с заменой файлов
-- Выполнить вставку SQL кода в базу данных, предварительно указав токен **FOXY_PAY_TOKEN**, который береться в личном кабинете FoxyPay.net (внутри вашего магазина). 
-
-``` sql
-INSERT INTO `lk_pay_service` (`id`, `name_kassa`, `shop_id`, `secret_key_1`, `secret_key_2`, `status`, `currency`, `commission`) VALUES
+1) Перетащите папку module_page_pay в директорию /app/modules/. Согласитесь с заменой файлов.
+2) Выполните вставку SQL-кода в базу данных, предварительно указав токен FOXY_PAY_TOKEN, который можно найти в личном кабинете на сайте FoxyPay.net (внутри вашего магазина).
+INSERT INTO lk_pay_service (id, name_kassa, shop_id, secret_key_1, secret_key_2, status, currency, commission) VALUES
 (11, 'FoxyPay', '1', 'FOXY_PAY_TOKEN', '', 1, 'UAH', 0);
-```
-- Установка закончена
+
+Установка закончена.

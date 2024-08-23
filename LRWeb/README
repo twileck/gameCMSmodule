@@ -1,4 +1,4 @@
-1) Перетащите папку module_page_pay в директорию /app/modules/. Согласитесь с заменой файлов.
+1) Перетащите папку module_page_pay (из скачанного архива LRWeb.zip) в директорию /app/modules/. Согласитесь с заменой файлов.
 2) Выполните вставку SQL-кода в базу данных, предварительно указав токен FOXY_PAY_TOKEN, который можно найти в личном кабинете на сайте FoxyPay.net (внутри вашего магазина).
 INSERT INTO lk_pay_service (id, name_kassa, shop_id, secret_key_1, secret_key_2, status, currency, commission) VALUES
 (11, 'FoxyPay', '1', 'FOXY_PAY_TOKEN', '', 1, 'UAH', 0);

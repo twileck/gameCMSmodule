@@ -1,54 +1,54 @@
-﻿# GAMECMS 
+# GAMECMS
 
-# ВАЖНО
-## Для работы кассы требуются рассширения для PHP (ОБЫЧНО ОНИ УСТАНОВЛЕНЫ ПО УМОЛЧАНИЮ)
+# ВАЖЛИВО
+## Для роботи каси потрібні розширення для PHP (ЗВИЧАЙНО ВОНИ ВСТАНОВЛЕНІ ЗА УМОВЧЕННЯМ)
 - ### cURL
 - ### SimpleXML
-### Установить их можно через SHELL-клиент (если у вас VDS или VPS), если у вас хостинг, то посмотрите как включить рассширение для PHP через ISP или CPanel
+### Встановити їх можна через SHELL-клієнт (якщо у вас VDS або VPS), якщо у вас хостинг, то подивіться як увімкнути розширення для PHP через ISP або CPanel
 
-- ### Если у вас VDS или VPS то используйте такие команды: 
-```shell 
-//Установка только с правами SUDO или ROOT, 
-//Смотрим версию php
-php -v 
-//У нас версия php7.4, если у вас другая меняем на свою
+- ### Якщо у вас VDS або VPS, то використовуйте такі команди:
+```shell
+//Установка тільки з правами SUDO або ROOT,
+//Дивимося версію php
+php -v
+//У нас версія php7.4, якщо у вас інша змінюємо свою
 apt install php7.4-xml
-//Если apache
+//Якщо apache
 systemctl restart apache2
 //NGINX
 systemctl reload nginx
 ```
-# Установка кассы
+# Встановлення каси
 
-1. Загрузите и распакуйте архив:
-   - Для лицензионной GameCMS: папка GameCMS
+1. Завантажте та розпакуйте архів:
+ - Для ліцензійної GameCMS: папка GameCMS
 
-2. Загрузите содержимое архива на свой сайт в корневой каталог.
+2. Завантажте вміст архіву на свій сайт у кореневий каталог.
 
 
-Модуль поддерживает без калькулятора курса 3 валюты: USD, UAH, EUR. 
-ЕСЛИ У ВАС УКАЗАНА ВАЛЮТА САЙТА USD, UAH, EUR, ТО ВАЛЮТА САЙТА ДОЛЖНА БЫТЬ ТАКАЯ, КАК И ВАЛЮТА КАССЫ.
-- Пример: Валюта сайта: USD, то и валюта кассы должна принимать только USD.
+Модуль підтримує без калькулятора курсу 3 валюти: USD, UAH, EUR.
+ЯКЩО У ВАС ВКАЗАНА ВАЛЮТА САЙТУ USD, UAH, EUR, ТО ВАЛЮТА САЙТУ МАЄ БУТИ ТАКА, ЯК І ВАЛЮТА КАСИ.
+- Приклад: Валюта сайту: USD, то й валюта каси має приймати лише USD.
 
-ЕСЛИ ЖЕ У ВАС УКАЗАНЫ KZT ИЛИ ДРУГИЕ ВАЛЮТЫ, КОТОРЫЕ ПОДДЕРЖИВАЮТ КАЛЬКУЛЯЦИЮ, ТО ВЫ МОЖЕТЕ УКАЗАТЬ ЛЮБУЮ ВАЛЮТУ КАССЫ.
-- Пример: Валюта сайта: KZT, значит можно использовать валюты кассы, такие, как: USD, EUR, UAH
+ЯКЩО Ж У ВАС ВКАЗАНІ KZT АБО ІНШІ ВАЛЮТИ, ЯКІ ПІДТРИМЮЮТЬ КАЛЬКУЛЯЦІЮ, ТО ВИ МОЖЕТЕ ВКАЗАТИ БУДЬ-ЯКУ ВАЛЮТУ КАСИ.
+- Приклад: Валюта сайту: KZT, отже, можна використовувати валюти каси, такі, як: USD, EUR, UAH
 
-- Настройка валюты кассы (для выборки валюты кассы, вам нужно в самой FoxyPay кассе выбрать идентичную валюту):
+- Налаштування валюти каси (для вибірки валюти каси, вам потрібно у самій FoxyPay касі вибрати ідентичну валюту):
 <p align="center">
  <img width="400px" src="./foxypay_payments.png" alt="UNI"/>
 </p>
 
 
-3. Откройте файл по пути `ajax/actions_m.php`.
+3. Відкрийте файл на шляху `ajax/actions_m.php`.
 
-4. Найдите `break;`.
+4. Знайдіть `break;`.
 
-5. После `break;` вставьте следующий код:
+5. Після `break;` вставте наступний код:
 ```php
 case 'foxypay':
 	if (empty($cashierSettings->foxypay_token)) {
-		error_log('Error: Способ оплаты не настроен');
-		throw new Exception('Способ оплаты не настроен');
+		error_log('Error: Спосіб оплати не налаштований');
+		throw new Exception('Спосіб оплати не налаштований');
 	}
 
 	if($cashierSettings->site_currency == "RUB"){
@@ -82,8 +82,8 @@ case 'foxypay':
 	$response = json_decode($curl->response, true);
 
 	if (empty($response['redirect_url'])) {
-		error_log('Error: Нет ссылки');
-		throw new Exception("Нет ссылки");
+		error_log('Error: Немає посилання');
+		throw new Exception("Немає посилання");
 	}
 
 	Payments::showLink($response['redirect_url']);
@@ -93,9 +93,9 @@ break;
 
 
 
-6. Правка файла `modules/purse/index.php`:
+6. Виправлення файлу `modules/purse/index.php`:
 
-   6.1 - Вставьте перед `$fail = '';`
+ 6.1 - Вставте перед `$fail = '';
 ```php
 include_once (__DIR__.'/modules_foxypay.php');
 ```
@@ -105,10 +105,10 @@ include_once (__DIR__.'/modules_foxypay.php');
 
 
 
-7. Импортируйте в базу `base.sql` (это добавит нужные колонки).
+7. Імпортуйте до бази `base.sql` (це додасть потрібні колонки).
 
-8. Редактируeм `inc/merchants.php`:
-   - Найдите массив, например: или любой другой
+8. Редагуємо `inc/merchants.php`:
+ - Знайдіть масив, наприклад: або будь-який інший
 	
  ```php
 'ps'      		=> [
@@ -117,20 +117,20 @@ include_once (__DIR__.'/modules_foxypay.php');
 		'image' => 'paysera.jpg'
 ],
 ```
-> После вставляем код
+> Після вставляємо код
 ```php
 'foxypay'      		=> [
-		'title' => 'Моментальное зачисление средств на баланс.',
+		'title' => 'Миттєве зарахування коштів у баланс.',
 		'name'  => 'FoxyPay',
 		'image' => 'foxypay.png'
 ],
 ```
 
 
-9. Админ-центр
+9. Адмін-центр
 
-- Открываем `ajax\actions_panel.php`
-- Вставляем код в самый низ
+- Відкриваємо `ajax\actions_panel.php`
+- Вставляємо код у самий низ
 ```php
 if(isset($_POST['editFoxyPaySystem'])) {
 	$foxypay_token = check(trim($_POST['foxypay_token']), null);
@@ -147,7 +147,7 @@ if(isset($_POST['editFoxyPaySystem'])) {
 }
 
 ```
-- Дальше находим строку с начиная с if (isset($_POST['change_value'])) и меняем код на этот:
+- Далі знаходимо рядок з if (isset($_POST['change_value'])) і змінюємо код на цей:
 ```php
 if (isset($_POST['change_value'])) {
 	$table = check($_POST['table'], null);
@@ -190,7 +190,7 @@ if (isset($_POST['change_value'])) {
 }
 ```
 #11 js
-- Открываем `ajax/ajax-admin.js`и в самый низ вставляем 
+- Відкриваємо `ajax/ajax-admin.js` і в самий низ вставляємо
 
 
 ```javascript
@@ -209,14 +209,14 @@ function editFoxyPaySystem() {
 }
 ```
 
-## Шаблон для админ панели
-- Открывем `templates/admin/tpl/payments.tpl`
-- Листаем в самый низ видим 2 </div>
+## Шаблон для адмін панелі
+- Відкриємо `templates/admin/tpl/payments.tpl`
+- Гартуємо в самий низ бачимо 2 </div>
 ```html
 	</div>
 </div>
 ```
-- Между ними ставим следующий код
+- Між ними ставимо наступний код
 ```html
 <div class="block">
 	<div class="block_head">
@@ -237,7 +237,7 @@ function editFoxyPaySystem() {
 		</div>
 	</div>
 	<div class="form-group mb-10">
-        <b> Валюта кассы на FoxyPay</b>
+        <b> Валюта каси на FoxyPay</b>
         <div class="form-group">
             <div class="btn-group" data-toggle="buttons">
                 <label class="btn btn-default {if($merchants->foxypay_currency == 'UAH')} active {/if}"
@@ -308,22 +308,22 @@ function editFoxyPaySystem() {
 	<div class="bs-callout bs-callout-info mt-10">
 		<h5>
 			<a target="_blank" href="https://github.com/twileck/gameCMSmodule/tree/master/gamecms">
-				<span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции
+				<span class="glyphicon glyphicon-link"></span> Натисніть , щоб перейти до інструкції
 			</a>
 		</h5>
 		<table>
 			<tr>
-				<td style="text-align: right">URL оповещения:</td>
+				<td style="text-align: right">URL оповіщення:</td>
 				<td>&nbsp&nbsp<b>{full_site_host}purse?foxypay=pay</b>
 				</td>
 			</tr>
 			<tr>
-				<td style="text-align: right">URL успешной оплаты:</td>
+				<td style="text-align: right">URL успішної оплати:</td>
 				<td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b>
 				</td>
 			</tr>
 			<tr>
-				<td style="text-align: right">URL ошибки:</td>
+				<td style="text-align: right">URL помилки:</td>
 				<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b>
 				</td>
 			</tr>

@@ -5,7 +5,6 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 	$payMethod = 'foxypay'; 												// Устанавливаем метод оплаты
 	$currentCurrency = Payments::getCashierCurrency($payMethod); 			// Получаем текущую валюту кассира
 
-
 	try {
 		$source = file_get_contents('php://input');
 		$requestData = json_decode($source, true);
@@ -24,23 +23,13 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 		if (strtoupper($requestData["sign"]) !== strtoupper($signature)) {
 			throw new Exception('Invalid signature');
 		}
+
 		$siteCurrency = sys()->currency()->code;
-		$amountInCents = $requestData["amount"];    // Сумма котора пришла
+		$amountInCents = $requestData["amount"];    // Сумма, которая пришла
 		$amountCurrency = $requestData["currency"];  // Код валюты
 
-		if ($siteCurrency != "RUB") {
-			$amountInSiteCurrency = (new FoxypayConverter($siteCurrency))->convertCurrency($amountInCents, $siteCurrency, $amountCurrency);
-		} else {
-			if ($requestData["currency"] == "UAH") {
-				$convertCurrency = (new CurrencyConverter())->getCurrencyRUB("UAH", 2);
-				$convert = $requestData["amount"] * $convertCurrency / 1000;
-			} else {
-				$convertCurrency = (new CurrencyConverter())->getCurrencyRUB($requestData["currency"], 0);
-				$convert = $requestData["amount"] / 100;
-				$convert = $convert * $convertCurrency;
-			}
-			$amountInSiteCurrency = round($convert);
-		}
+		// Конвертация в валюту сайта через FoxypayConverter
+		$amountInSiteCurrency = (new FoxypayConverter($siteCurrency))->convertCurrency($amountInCents, $amountCurrency, $siteCurrency);
         
 		$amount = clean($amountInSiteCurrency, 'float');
 		$payNumber = clean($requestData["code"], 'varchar');
@@ -55,7 +44,7 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 				exit('Old');
 			}
 			// Выполняем действия по обработке платежа
-			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages['RUB']);
+			$Pm->doPayAction($pdo, $userInfo, $amount, $conf->bank, $payMethod, $payNumber, $messages[$siteCurrency]);
 			exit('OK');
 		}
 	} catch (Exception $e) {

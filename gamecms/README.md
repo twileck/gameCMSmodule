@@ -46,10 +46,6 @@ case 'foxypay':
         throw new Exception('Спосіб оплати не налаштований');
     }
 
-    if($cashierSettings->site_currency != "RUB"){
-        $amount = $amount * 100;
-    }
-
     $curl = new Curl();
     $curl->setHeader('token', $cashierSettings->foxypay_token);
 

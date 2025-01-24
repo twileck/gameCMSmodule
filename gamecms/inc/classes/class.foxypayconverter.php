@@ -4,13 +4,12 @@ class FoxypayConverter {
 
     private $exchangeRates = [];
     public function __construct($exchangeRates){
-        if($exchangeRates == 'RUB'){
+        if($exchangeRates == 'KZT'){
             $this->exchangeRates = [
-                "RUB" => [
-                    "KZT" => (new CurrencyConverter())->getCurrencyRUB("KZT", 2),
-                    "USD" => (new CurrencyConverter())->getCurrencyRUB("USD", 2),
-                    "EUR" => (new CurrencyConverter())->getCurrencyRUB("EUR", 2),
-                    "UAH" => (new CurrencyConverter())->getCurrencyRUB("UAH", 1),
+                "KZT" => [
+                    "USD" => (new CurrencyConverter())->convertCurrency(1, "KZT", "USD"),
+                    "EUR" => (new CurrencyConverter())->convertCurrency(1, "KZT", "EUR"),
+                    "UAH" => (new CurrencyConverter())->convertCurrency(1, "KZT", "UAH"),
                 ]
             ];
         }
@@ -19,13 +18,13 @@ class FoxypayConverter {
     public function getExchangeRate($fromCurrency, $toCurrency) {
         // Если курсы совпадают, вернуть 1
         if ($fromCurrency === $toCurrency) {
-            return null; // Или можно просто вернуть null, так как это будет означать, что конвертация не требуется
+            return 1; // Конвертация не требуется
         }
         
         if (isset($this->exchangeRates[$fromCurrency][$toCurrency])) {
             return $this->exchangeRates[$fromCurrency][$toCurrency];
         } else {
-            return null; // или null, если курс не найден
+            return null; // Возвращаем null, если курс не найден
         }
     }
     
@@ -38,7 +37,9 @@ class FoxypayConverter {
         }
     
         // В противном случае проводим конвертацию
-        return ($amountInCents / 100) * $exchangeRate; // Умножаем сумму на обменный курс
+        if ($exchangeRate) {
+            return ($amountInCents / 100) * $exchangeRate; // Умножаем сумму на обменный курс
+        }
+        return null; // Если курс не найден
     }     
 }
-

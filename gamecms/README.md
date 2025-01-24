@@ -41,47 +41,35 @@ ___________________________________________________
 5. Після `break;` вставте наступний код:
 ```php
 case 'foxypay':
-	if (empty($cashierSettings->foxypay_token)) {
-		error_log('Error: Спосіб оплати не налаштований');
-		throw new Exception('Спосіб оплати не налаштований');
-	}
+    if (empty($cashierSettings->foxypay_token)) {
+        error_log('Error: Спосіб оплати не налаштований');
+        throw new Exception('Спосіб оплати не налаштований');
+    }
 
-	if($cashierSettings->site_currency == "RUB"){
-		if($cashierSettings->foxypay_currency == "UAH"){
-			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("UAH", 2)) * 1000;
-		}if($cashierSettings->foxypay_currency == "USD"){
-			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("USD", 0);
-			$amount = number_format($amount, 2, '.', '');
-			$amount = $amount * 100;
-		}if($cashierSettings->foxypay_currency == "EUR"){
-			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 3);
-			$amount = number_format($amount, 3, '.', '');
-			$amount = $amount * 100;
-		}
-	}else{
-		$amount = $amount * 100;
-	}
+    if($cashierSettings->site_currency != "RUB"){
+        $amount = $amount * 100;
+    }
 
-	$curl = new Curl();
-	$curl->setHeader('token', $cashierSettings->foxypay_token);
+    $curl = new Curl();
+    $curl->setHeader('token', $cashierSettings->foxypay_token);
 
-	$curl->post('https://foxypay.net/api/payment', [
-		'amount' => $amount,
-		'description' => $orderDesc,
-		'webhook_url' => $full_site_host . 'purse?foxypay=pay',
-		'success_url' => $full_site_host . 'purse?result=success',
-		'fail_url' => $full_site_host . 'purse?result=fail',
-		'info' => user()->id,
-	]);
+    $curl->post('https://foxypay.net/api/payment', [
+        'amount' => $amount,
+        'description' => $orderDesc,
+        'webhook_url' => $full_site_host . 'purse?foxypay=pay',
+        'success_url' => $full_site_host . 'purse?result=success',
+        'fail_url' => $full_site_host . 'purse?result=fail',
+        'info' => user()->id,
+    ]);
 
-	$response = json_decode($curl->response, true);
+    $response = json_decode($curl->response, true);
 
-	if (empty($response['redirect_url'])) {
-		error_log('Error: Немає посилання');
-		throw new Exception("Немає посилання");
-	}
+    if (empty($response['redirect_url'])) {
+        error_log('Error: Немає посилання');
+        throw new Exception("Немає посилання");
+    }
 
-	Payments::showLink($response['redirect_url']);
+    Payments::showLink($response['redirect_url']);
 break;
 
 ```
@@ -145,43 +133,46 @@ if(isset($_POST['editFoxyPaySystem'])) {
 - Далі знаходимо рядок з if (isset($_POST['change_value'])) і змінюємо код на цей:
 ```php
 if (isset($_POST['change_value'])) {
-	$table = check($_POST['table'], null);
-	$attr = check($_POST['attr'], null);
-	$value = check($_POST['value'], null);
-	$id = check($_POST['id'], "int");
+    $table = check($_POST['table'], null);
+    $attr = check($_POST['attr'], null);
+    $value = check($_POST['value'], null);
+    $id = check($_POST['id'], "int");
 
-	if (empty($attr)) {
-		exit();
-	}
-	if (check_for_php($_POST['value'])) {
-		exit();
-	}
-	if (ifSafeMode()) {
-		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['RUB', 'USD', 'EUR', 'UAH']))) {
-			exit();
-		}
-		if (
-			!in_array(
-				check($_POST['table'], null),
-				['config', 'users', 'config__bank', 'config__secondary', 'config__email', 'config__prices']
-			)
-		) {
-			exit();
-		}
-	}
+    if (empty($attr)) {
+        exit();
+    }
+    if (check_for_php($_POST['value'])) {
+        exit();
+    }
+    if (ifSafeMode()) {
+        if (
+            ($_POST['value'] != check($_POST['value'], "int"))
+            && !in_array($_POST['value'], ['UAH', 'USD', 'EUR'])
+        ) {
+            exit();
+        }
+        if (
+            !in_array(
+                check($_POST['table'], null),
+                ['config', 'users', 'config__bank', 'config__secondary', 'config__email', 'config__prices']
+            )
+        ) {
+            exit();
+        }
+    }
 
-	if (empty($value) && $value != 0) {
-		$value = '';
-	}
+    if (empty($value) && $value != 0) {
+        $value = '';
+    }
 
-	if (empty($id)) {
-		$STH = pdo()->prepare("UPDATE $table SET `$attr`=:value");
-		$STH->execute([':value' => $value]);
-	} else {
-		$STH = pdo()->prepare("UPDATE $table SET `$attr`=:value WHERE `id`='$id' LIMIT 1");
-		$STH->execute([':value' => $value]);
-	}
-	exit();
+    if (empty($id)) {
+        $STH = pdo()->prepare("UPDATE $table SET `$attr`=:value");
+        $STH->execute([':value' => $value]);
+    } else {
+        $STH = pdo()->prepare("UPDATE $table SET `$attr`=:value WHERE `id`='$id' LIMIT 1");
+        $STH->execute([':value' => $value]);
+    }
+    exit();
 }
 ```
 #11 js
@@ -259,11 +250,6 @@ function editFoxyPaySystem() {
         <b> Валюта сайта </b>
         <div class="form-group">
             <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default {if($merchants->site_currency == 'RUB')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','RUB','1');">
-                    <input type="radio">
-                    RUB
-                </label>                
 				<label class="btn btn-default {if($merchants->site_currency == 'UAH')} active {/if}"
                        onclick="change_value('config__bank','site_currency','UAH','1');">
                     <input type="radio">
@@ -324,7 +310,7 @@ function editFoxyPaySystem() {
 			</tr>
 		</table>
 	</div>
-</div>		
+</div>
 ```
 
 

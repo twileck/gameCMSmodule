@@ -3,43 +3,40 @@
 class FoxypayConverter {
 
     private $exchangeRates = [];
-    public function __construct($exchangeRates){
-        if($exchangeRates == 'RUB'){
-            $this->exchangeRates = [
-                "RUB" => [
-                    "KZT" => (new CurrencyConverter())->getCurrencyRUB("KZT", 2),
-                    "USD" => (new CurrencyConverter())->getCurrencyRUB("USD", 2),
-                    "EUR" => (new CurrencyConverter())->getCurrencyRUB("EUR", 2),
-                    "UAH" => (new CurrencyConverter())->getCurrencyRUB("UAH", 1),
-                ]
-            ];
-        }
+
+    public function __construct() {
+        $this->exchangeRates = [
+            "KZT" => [
+                "USD" => (new CurrencyConverter())->getCurrency("KZT", "USD"),
+                "EUR" => (new CurrencyConverter())->getCurrency("KZT", "EUR"),
+                "UAH" => (new CurrencyConverter())->getCurrency("KZT", "UAH"),
+            ]
+        ];
     }
 
     public function getExchangeRate($fromCurrency, $toCurrency) {
-        // Если курсы совпадают, вернуть 1
+        // Если валюты совпадают, возвращаем коэффициент 1
         if ($fromCurrency === $toCurrency) {
-            return null; // Или можно просто вернуть null, так как это будет означать, что конвертация не требуется
+            return 1; 
         }
-        
-        // Возвращаем курс обмена между указанными валютами или null, если курс не найден
+
+        // Возвращаем курс обмена или null, если он не найден
         if (isset($this->exchangeRates[$fromCurrency][$toCurrency])) {
             return $this->exchangeRates[$fromCurrency][$toCurrency];
         } else {
-            return null; // или null, если курс не найден
+            return null; 
         }
     }
-    
+
     public function convertCurrency($amountInCents, $fromCurrency, $toCurrency) {
         $exchangeRate = $this->getExchangeRate($fromCurrency, $toCurrency);
 
-        // Если валюты совпадают, просто возвращаем сумму без изменений
-        if ($fromCurrency === $toCurrency) {
-            return $amountInCents / 100; // Если валюты совпадают, возвращаем сумму в единицах валюты
+        // Если курс не найден, выбрасываем исключение
+        if ($exchangeRate === null) {
+            throw new Exception("Курс обмена с $fromCurrency на $toCurrency не найден.");
         }
-    
-        // В противном случае проводим конвертацию
-        return ($amountInCents / 100) * $exchangeRate; // Умножаем сумму на обменный курс
-    }     
-}
 
+        // Проводим конвертацию (умножаем сумму на курс)
+        return ($amountInCents / 100) * $exchangeRate; 
+    }
+}

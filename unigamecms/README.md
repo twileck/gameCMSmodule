@@ -48,32 +48,48 @@ systemctl reload nginx
 5. Після `break;` вставте наступний код:
 ```php
 case 'foxypay':
-    if (empty($cashierSettings->foxypay_token)) {
-        error_log('Error: Спосіб оплати не налаштований');
-        throw new Exception('Спосіб оплати не налаштований');
-    }
+	if (empty($cashierSettings->foxypay_token)) {
+		error_log('Error: Спосіб оплати не налаштований');
+		throw new Exception('Спосіб оплати не налаштований');
+	}
 
-    $curl = new Curl();
-    $curl->setHeader('token', $cashierSettings->foxypay_token);
+	if(sys()->currency()->code == "RUB"){
+		if($cashierSettings->foxypay_currency == "UAH"){
+			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("UAH", 2)) * 1000;
+		}if($cashierSettings->foxypay_currency == "USD"){
+			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("USD", 0);
+			$amount = number_format($amount, 2, '.', '');
+			$amount = $amount * 100;
+		}if($cashierSettings->foxypay_currency == "EUR"){
+			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 3);
+			$amount = number_format($amount, 3, '.', '');
+			$amount = $amount * 100;
+		}
+	}else{
+		$amount = $amount * 100;
+	}
 
-    $curl->post('https://foxypay.net/api/payment', [
-        'amount' => $amount,
-        'description' => $orderDesc,
-        'webhook_url' => $full_site_host . 'purse?foxypay=pay',
-        'success_url' => $full_site_host . 'purse?result=success',
-        'fail_url' => $full_site_host . 'purse?result=fail',
-        'info' => $user->id,
-    ]);
+	$curl = new Curl();
+	$curl->setHeader('token', $cashierSettings->foxypay_token);
 
-    $response = json_decode($curl->response, true);
+	$curl->post('https://foxypay.net/api/payment', [
+		'amount' => $amount,
+		'description' => $orderDesc,
+		'webhook_url' => $full_site_host . 'purse?foxypay=pay',
+		'success_url' => $full_site_host . 'purse?result=success',
+		'fail_url' => $full_site_host . 'purse?result=fail',
+		'info' => $user->id,
+	]);
 
-    if (empty($response['redirect_url'])) {
-        error_log('Error: Немає посилання');
-        throw new Exception("Немає посилання");
-    }
+	$response = json_decode($curl->response, true);
 
-    Payments::showLink($response['redirect_url']);
-    break;
+	if (empty($response['redirect_url'])) {
+		error_log('Error: Немає посилання');
+		throw new Exception("Немає посилання");
+	}
+    
+	Payments::showLink($response['redirect_url']);
+	break;
 ```
 
 6. Виправлення файлу `modules/purse/index.php`:
@@ -152,43 +168,43 @@ if(isset($_POST['editFoxyPaySystem'])) {
 - Далі знаходимо рядок з if (isset($_POST['change_value'])) і змінюємо код на цей:
 ```php
 if (isset($_POST['change_value'])) {
-    $table = check($_POST['table'], null);
-    $attr = check($_POST['attr'], null);
-    $value = check($_POST['value'], null);
-    $id = check($_POST['id'], "int");
+	$table = check($_POST['table'], null);
+	$attr = check($_POST['attr'], null);
+	$value = check($_POST['value'], null);
+	$id = check($_POST['id'], "int");
 
-    if (empty($attr)) {
-        exit();
-    }
-    if (check_for_php($_POST['value'])) {
-        exit();
-    }
-    if ($safe_mode == 1) {
-        if ($_POST['value'] != check($_POST['value'], "int")) {
-            exit();
-        }
-        if (
-            !in_array(
-                check($_POST['table'], null),
-                ['config', 'users', 'config__bank', 'config__secondary', 'config__email', 'config__prices']
-            )
-        ) {
-            exit();
-        }
-    }
+	if (empty($attr)) {
+		exit();
+	}
+	if (check_for_php($_POST['value'])) {
+		exit();
+	}
+	if ($safe_mode == 1) {
+		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['RUB', 'USD', 'EUR']))) {
+			exit();
+		}
+		if (
+			!in_array(
+				check($_POST['table'], null),
+				['config', 'users', 'config__bank', 'config__secondary', 'config__email', 'config__prices']
+			)
+		) {
+			exit();
+		}
+	}
 
-    if (empty($value) && $value != 0) {
-        $value = '';
-    }
+	if (empty($value) && $value != 0) {
+		$value = '';
+	}
 
-    if (empty($id)) {
-        $STH = $pdo->prepare("UPDATE `$table` SET `$attr`=:value");
-        $STH->execute([':value' => $value]);
-    } else {
-        $STH = $pdo->prepare("UPDATE `$table` SET `$attr`=:value WHERE `id`='$id' LIMIT 1");
-        $STH->execute([':value' => $value]);
-    }
-    exit();
+	if (empty($id)) {
+		$STH = $pdo->prepare("UPDATE `$table` SET `$attr`=:value");
+		$STH->execute([':value' => $value]);
+	} else {
+		$STH = $pdo->prepare("UPDATE `$table` SET `$attr`=:value WHERE `id`='$id' LIMIT 1");
+		$STH->execute([':value' => $value]);
+	}
+	exit();
 }
 ```
 
@@ -228,7 +244,7 @@ function editFoxyPaySystem() {
                     <img src="../files/merchants/foxypay.png" alt="foxypay">
                 </label>
             </div>
-            <input class="form-control" id="number_foxypay" placeholder="Введіть суму" value="{price}">
+            <input class="form-control" id="number_foxypay" placeholder="Укажите сумму" value="{price}">
             <div id="balance_result_foxypay" class="mt-3"></div>
             <button class="btn btn-outline-primary btn-xl" onclick="refill_balance('foxypay');">Поповнити баланс</button>
         </div>
@@ -264,28 +280,28 @@ function editFoxyPaySystem() {
 - Між ними ставимо наступний код
 ```html
 <div class="block">
-    <div class="block_head">
-        FoxyPay
-    </div>
-    <div class="form-group mb-10">
-        <div class="btn-group" data-toggle="buttons" id="foxypayTrigger">
-            <label class="btn btn-default {if('{foxypay_pay}' == 1)} active {/if}"
-                onclick="change_value('config__bank','foxypay','1','1');">
-                <input type="radio">
-                Включить
-            </label>
-            <label class="btn btn-default {if('{foxypay_pay}' == 2)} active {/if}"
-                onclick="change_value('config__bank','foxypay','2','1');">
-                <input type="radio">
-                Выключить
-            </label>
-        </div>
-    </div>
-    <div class="form-group mb-10">
+	<div class="block_head">
+		FoxyPay
+	</div>
+	<div class="form-group mb-10">
+		<div class="btn-group" data-toggle="buttons" id="foxypayTrigger">
+			<label class="btn btn-default {if('{foxypay_pay}' == 1)} active {/if}"
+				onclick="change_value('config__bank','foxypay','1','1');">
+				<input type="radio">
+				Включить
+			</label>
+			<label class="btn btn-default {if('{foxypay_pay}' == 2)} active {/if}"
+				onclick="change_value('config__bank','foxypay','2','1');">
+				<input type="radio">
+				Выключить
+			</label>
+		</div>
+	</div>
+	<div class="form-group mb-10">
         <b> Валюта кассы на FoxyPay</b>
         <div class="form-group">
             <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default {if('{foxypay_currency}' == 'UAH')} active {/if}"
+                <label class="btn btn-default {if('{foxypay_currency}'== 'UAH')} active {/if}"
                        onclick="change_value('config__bank','foxypay_currency','UAH','1');">
                     <input type="radio">
                     UAH
@@ -305,40 +321,40 @@ function editFoxyPaySystem() {
             </div>
         </div>
     </div>       
-    <div class="input-group">
-        <span class="input-group-btn">
-            <button class="btn btn-default pd-23-12" type="button" onclick="editFoxyPaySystem();">
-                Изменить
-            </button>
-        </span>
-        <input type="text" class="form-control" id="foxypay_token" maxlength="255" autocomplete="off"
-            value="{foxypay_token}" placeholder="Токен">
-    </div>
-    <div id="edit_foxypay_result"></div>
-    <div class="bs-callout bs-callout-info mt-10">
-        <h5>
-            <a target="_blank" href="https://github.com/twileck/gameCMSmodule/tree/master/unigamecms">
-                <span class="glyphicon glyphicon-link"></span> Натисніть , щоб перейти до інструкції
-            </a>
-        </h5>
-        <table>
-            <tr>
-                <td style="text-align: right">URL оповіщення:</td>
-                <td>&nbsp&nbsp<b>{full_site_host}purse?foxypay=pay</b>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right">URL успішної оплати:</td>
-                <td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align: right">URL помилки:</td>
-                <td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b>
-                </td>
-            </tr>
-        </table>
-    </div>
+	<div class="input-group">
+		<span class="input-group-btn">
+			<button class="btn btn-default pd-23-12" type="button" onclick="editFoxyPaySystem();">
+				Изменить
+			</button>
+		</span>
+		<input type="text" class="form-control" id="foxypay_token" maxlength="255" autocomplete="off"
+			value="{foxypay_token}" placeholder="Токен">
+	</div>
+	<div id="edit_foxypay_result"></div>
+	<div class="bs-callout bs-callout-info mt-10">
+		<h5>
+			<a target="_blank" href="https://github.com/twileck/gameCMSmodule/tree/master/unigamecms">
+				<span class="glyphicon glyphicon-link"></span> Натисніть , щоб перейти до інструкції
+			</a>
+		</h5>
+		<table>
+			<tr>
+				<td style="text-align: right">URL оповіщення:</td>
+				<td>&nbsp&nbsp<b>{full_site_host}purse?foxypay=pay</b>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: right">URL успішної оплати:</td>
+				<td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: right">URL помилки:</td>
+				<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b>
+				</td>
+			</tr>
+		</table>
+	</div>
 </div>
 ```
 

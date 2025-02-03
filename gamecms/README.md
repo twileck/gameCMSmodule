@@ -27,13 +27,7 @@ systemctl reload nginx
 
 Модуль підтримує без калькулятора курсу 3 валюти: USD, UAH, EUR.
 ЯКЩО У ВАС ВКАЗАНА ВАЛЮТА САЙТУ USD, UAH, EUR, ТО ВАЛЮТА САЙТУ МАЄ БУТИ ТАКА, ЯК І ВАЛЮТА КАСИ.
-- Приклад: Валюта сайту: USD, то й валюта каси має приймати лише USD.
-
-- Налаштування валюти каси (для вибірки валюти каси, вам потрібно у самій FoxyPay касі вибрати ідентичну валюту):
-<p align="center">
- <img width="400px" src="./foxypay_payments.png" alt="UNI"/>
-</p>
-
+- Приклад: Валюта сайту: UAH, то й валюта каси має приймати лише UAH.
 
 3. Відкрийте файл на шляху `ajax/actions_m.php`.
 
@@ -260,11 +254,7 @@ function editFoxyPaySystem() {
         <b> Валюта сайта </b>
         <div class="form-group">
             <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default {if($merchants->site_currency == 'RUB')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','RUB','1');">
-                    <input type="radio">
-                    RUB
-                </label>                
+              
 				<label class="btn btn-default {if($merchants->site_currency == 'UAH')} active {/if}"
                        onclick="change_value('config__bank','site_currency','UAH','1');">
                     <input type="radio">

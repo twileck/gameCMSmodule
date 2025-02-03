@@ -55,4 +55,28 @@ class CurrencyConverter {
         }
         return false; // Валюта не найдена
     }
+
+    /*
+     * Получение курса для рубля
+     * @param string $currency_code = "USD" - Код валюты
+     * @param int $format = 3 - Сколько знаков после запятой
+     * @return int - Возвращаем нае значение
+     */
+    public function getCurrencyRUB($currency_code, $format)
+    {
+        $date = date('d.m.Y'); // Текущая дата
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, 'https://www.cbr.ru/scripts/XML_daily.asp?date_req=' . $date);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+
+        $out = curl_exec($ch);
+
+        curl_close($ch);
+
+        $content_currency = simplexml_load_string($out);
+        return number_format(str_replace(',', '.', $content_currency->xpath('Valute[CharCode="' . $currency_code . '"]')[0]->Value), $format);
+    }
 }

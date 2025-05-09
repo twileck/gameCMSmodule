@@ -43,7 +43,7 @@ case 'foxypay':
 
 4. Виправлення файлу `modules/purse/index.php`:
 
- 6.1 - Вставте перед `$fail = '';`
+Вставте перед `$fail = '';`
 ```php
 include_once (__DIR__.'/modules_foxypay.php');
 ```

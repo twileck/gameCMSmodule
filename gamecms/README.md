@@ -1,37 +1,12 @@
-# GAMECMS
-
-# ВАЖЛИВО
-## Для роботи каси потрібні розширення для PHP (ЗВИЧАЙНО ВОНИ ВСТАНОВЛЕНІ ЗА УМОВЧЕННЯМ)
-- ### cURL
-- ### SimpleXML
-### Встановити їх можна через SHELL-клієнт (якщо у вас VDS або VPS), якщо у вас хостинг, то подивіться як увімкнути розширення для PHP через ISP або CPanel
-
-- ### Якщо у вас VDS або VPS, то використовуйте такі команди:
-```shell
-//Установка тільки з правами SUDO або ROOT,
-//Дивимося версію php
-php -v
-//У нас версія php7.4, якщо у вас інша змінюємо свою
-apt install php7.4-xml
-//Якщо apache
-systemctl restart apache2
-//NGINX
-systemctl reload nginx
-```
 # Встановлення каси
 
-1. Завантажте та розпакуйте архів:
- - Для ліцензійної GameCMS: папка GameCMS
+1. Завантажте вміст архіву на свій сайт у кореневий каталог.
 
-2. Завантажте вміст архіву на свій сайт у кореневий каталог.
+> **ВАЖЛИВО:** модуль підтримує тільки одну валюту — **UAH (гривня)**. Валюта сайту та каси мають збігатися.
 
-Модуль підтримує без калькулятора курсу 3 валюти: USD, UAH, EUR.
-ЯКЩО У ВАС ВКАЗАНА ВАЛЮТА САЙТУ USD, UAH, EUR, ТО ВАЛЮТА САЙТУ МАЄ БУТИ ТАКА, ЯК І ВАЛЮТА КАСИ.
-- Приклад: Валюта сайту: UAH, то й валюта каси має приймати лише UAH.
+2. Відкрийте файл на шляху `ajax/actions_m.php`.
 
-3. Відкрийте файл на шляху `ajax/actions_m.php`.
-
-4. Знайдіть `break;`.
+3. Знайдіть `break;`.
 
 5. Після `break;` вставте наступний код:
 ```php
@@ -41,21 +16,7 @@ case 'foxypay':
 		throw new Exception('Спосіб оплати не налаштований');
 	}
 
-	if($cashierSettings->site_currency == "RUB"){
-		if($cashierSettings->foxypay_currency == "UAH"){
-			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("UAH", 2)) * 1000;
-		}if($cashierSettings->foxypay_currency == "USD"){
-			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("USD", 0);
-			$amount = number_format($amount, 2, '.', '');
-			$amount = $amount * 100;
-		}if($cashierSettings->foxypay_currency == "EUR"){
-			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 3);
-			$amount = number_format($amount, 3, '.', '');
-			$amount = $amount * 100;
-		}
-	}else{
-		$amount = $amount * 100;
-	}
+	$amount = $amount * 100; // Гривні в копійки
 
 	$curl = new Curl();
 	$curl->setHeader('token', $cashierSettings->foxypay_token);
@@ -77,47 +38,38 @@ case 'foxypay':
 	}
 
 	Payments::showLink($response['redirect_url']);
-break;
-
+	break;
 ```
 
+4. Виправлення файлу `modules/purse/index.php`:
 
-
-6. Виправлення файлу `modules/purse/index.php`:
-
- 6.1 - Вставте перед `$fail = '';
+ 6.1 - Вставте перед `$fail = '';`
 ```php
 include_once (__DIR__.'/modules_foxypay.php');
 ```
 
+5. Імпортуйте до бази `base.sql` (це додасть потрібні колонки).
 
-
-
-
-
-7. Імпортуйте до бази `base.sql` (це додасть потрібні колонки).
-
-8. Редагуємо `inc/merchants.php`:
+6. Редагуємо `inc/merchants.php`:
  - Знайдіть масив, наприклад: або будь-який інший
-	
+ 
  ```php
-'ps'      		=> [
-		'title' => 'Paysera',
-		'name'  => 'Paysera',
-		'image' => 'paysera.jpg'
+'ps' => [
+	'title' => 'Paysera',
+	'name'  => 'Paysera',
+	'image' => 'paysera.jpg'
 ],
 ```
 > Після вставляємо код
 ```php
-'foxypay'      		=> [
-		'title' => 'Миттєве зарахування коштів у баланс.',
-		'name'  => 'FoxyPay',
-		'image' => 'foxypay.png'
+'foxypay' => [
+	'title' => 'FoxyPay - оплата картками України/Євпропи, криптовалюта, Revolut, Paypal',
+	'name'  => 'FoxyPay',
+	'image' => 'foxypay.png'
 ],
 ```
 
-
-9. Адмін-центр
+7. Адмін-центр
 
 - Відкриваємо `ajax\actions_panel.php`
 - Вставляємо код у самий низ
@@ -135,8 +87,8 @@ if(isset($_POST['editFoxyPaySystem'])) {
 	$STH->execute([':foxypay_token' => $foxypay_token]);
 	exit('<p class="text-success">Настройки изменены!</p>');
 }
-
 ```
+
 - Далі знаходимо рядок з if (isset($_POST['change_value'])) і змінюємо код на цей:
 ```php
 if (isset($_POST['change_value'])) {
@@ -152,15 +104,10 @@ if (isset($_POST['change_value'])) {
 		exit();
 	}
 	if (ifSafeMode()) {
-		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['RUB', 'USD', 'EUR', 'UAH']))) {
+		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['UAH']))) {
 			exit();
 		}
-		if (
-			!in_array(
-				check($_POST['table'], null),
-				['config', 'users', 'config__bank', 'config__secondary', 'config__email', 'config__prices']
-			)
-		) {
+		if (!in_array(check($_POST['table'], null), ['config', 'users', 'config__bank', 'config__secondary', 'config__email', 'config__prices'])) {
 			exit();
 		}
 	}
@@ -179,9 +126,9 @@ if (isset($_POST['change_value'])) {
 	exit();
 }
 ```
-#11 js
-- Відкриваємо `ajax/ajax-admin.js` і в самий низ вставляємо
 
+8. 
+- Відкриваємо `ajax/ajax-admin.js` і в самий низ вставляємо
 
 ```javascript
 function editFoxyPaySystem() {
@@ -198,10 +145,10 @@ function editFoxyPaySystem() {
 	});
 }
 ```
-
+9. 
 ## Шаблон для адмін панелі
 - Відкриємо `templates/admin/tpl/payments.tpl`
-- Гартуємо в самий низ бачимо 2 </div>
+- Гартуємо в самий низ, бачимо 2 </div>
 ```html
 	</div>
 </div>
@@ -227,54 +174,29 @@ function editFoxyPaySystem() {
 		</div>
 	</div>
 	<div class="form-group mb-10">
-        <b> Валюта каси на FoxyPay</b>
-        <div class="form-group">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default {if($merchants->foxypay_currency == 'UAH')} active {/if}"
-                       onclick="change_value('config__bank','foxypay_currency','UAH','1');">
-                    <input type="radio">
-                    UAH
-                </label>
-    
-                <label class="btn btn-default {if($merchants->foxypay_currency == 'USD')} active {/if}"
-                       onclick="change_value('config__bank','foxypay_currency','USD','1');">
-                    <input type="radio">
-                    USD
-                </label>
-    
-                <label class="btn btn-default {if($merchants->foxypay_currency == 'EUR')} active {/if}"
-                       onclick="change_value('config__bank','foxypay_currency','EUR','1');">
-                    <input type="radio">
-                    EUR
-                </label>
-            </div>
-        </div>
-    </div>	
+		<b> Валюта каси на FoxyPay</b>
+		<div class="form-group">
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-default active"
+						onclick="change_value('config__bank','foxypay_currency','UAH','1');">
+					<input type="radio">
+					UAH
+				</label>
+			</div>
+		</div>
+	</div>	
 	<div class="form-group mb-10">
-        <b> Валюта сайта </b>
-        <div class="form-group">
-            <div class="btn-group" data-toggle="buttons">
-              
-				<label class="btn btn-default {if($merchants->site_currency == 'UAH')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','UAH','1');">
-                    <input type="radio">
-                    UAH
-                </label>
-    
-                <label class="btn btn-default {if($merchants->site_currency == 'USD')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','USD','1');">
-                    <input type="radio">
-                    USD
-                </label>
-    
-                <label class="btn btn-default {if($merchants->site_currency == 'EUR')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','EUR','1');">
-                    <input type="radio">
-                    EUR
-                </label>
-            </div>
-        </div>
-    </div> 	
+		<b> Валюта сайта </b>
+		<div class="form-group">
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-default active"
+						onclick="change_value('config__bank','site_currency','UAH','1');">
+					<input type="radio">
+					UAH
+				</label>
+			</div>
+		</div>
+	</div>	
 	<div class="input-group">
 		<span class="input-group-btn">
 			<button class="btn btn-default pd-23-12" type="button"
@@ -317,19 +239,3 @@ function editFoxyPaySystem() {
 	</div>
 </div>		
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

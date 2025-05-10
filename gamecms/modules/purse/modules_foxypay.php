@@ -28,19 +28,7 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 		$amountInCents = $requestData["amount"];    // Сумма котора пришла
 		$amountCurrency = $requestData["currency"];  // Код валюты
 
-		if ($siteCurrency != "RUB") {
-			$amountInSiteCurrency = (new FoxypayConverter($siteCurrency))->convertCurrency($amountInCents, $siteCurrency, $amountCurrency);
-		} else {
-			if ($requestData["currency"] == "UAH") {
-				$convertCurrency = (new CurrencyConverter())->getCurrencyRUB("UAH", 2);
-				$convert = $requestData["amount"] * $convertCurrency / 1000;
-			} else {
-				$convertCurrency = (new CurrencyConverter())->getCurrencyRUB($requestData["currency"], 0);
-				$convert = $requestData["amount"] / 100;
-				$convert = $convert * $convertCurrency;
-			}
-			$amountInSiteCurrency = round($convert);
-		}
+		$amountInSiteCurrency = round((int)$requestData["amount"] / 100);
 
 		$amount = clean($amountInSiteCurrency, 'float');
 		$payNumber = clean($requestData["code"], 'varchar');
@@ -63,7 +51,7 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 		}
 
 		// Выполняем действия по обработке платежа
-		$Pm->doPayAction(pdo(), $userInfo, $amount, configs()->bank, $payMethod, $payNumber, $messages['RUB']);
+		$Pm->doPayAction(pdo(), $userInfo, $amount, configs()->bank, $payMethod, $payNumber, $requestData["currency"]);
 		exit('OK');
 
 	} catch (Exception $e) {

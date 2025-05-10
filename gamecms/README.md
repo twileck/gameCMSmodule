@@ -209,111 +209,63 @@ function editFoxyPaySystem() {
 - Між ними ставимо наступний код
 ```html
 <div class="block">
-	<div class="block_head">
-		FoxyPay
-	</div>
-	<div class="form-group mb-10">
-		<div class="btn-group" data-toggle="buttons" id="foxypayTrigger">
-			<label class="btn btn-default {if($merchants->foxypay == 1)} active {/if}"
-					onclick="change_value('config__bank','foxypay','1','1');">
-				<input type="radio">
-				Включить
-			</label>
-			<label class="btn btn-default {if($merchants->foxypay == 2)} active {/if}"
-					onclick="change_value('config__bank','foxypay','2','1');">
-				<input type="radio">
-				Выключить
-			</label>
+		<div class="block_head">
+			FoxyPay
+		</div>
+		<div class="form-group mb-10">
+			<div class="btn-group" data-toggle="buttons">
+				<label class="btn btn-default {if($merchants->foxypay == 1)} active {/if}"
+				       onclick="change_value('config__bank','foxypay','1','1');">
+					<input type="radio">
+					Включить
+				</label>
+				<label class="btn btn-default {if($merchants->foxypay == 2)} active {/if}"
+				       onclick="change_value('config__bank','foxypay','2','1');">
+					<input type="radio">
+					Выключить
+				</label>
+			</div>
+		</div>
+		<div class="input-group">
+			<span class="input-group-btn">
+				<button class="btn btn-default" type="button"
+				        onclick="editFoxyPayPaymentSystem();">
+					Изменить
+				</button>
+			</span>
+			<input type="text"
+			       class="form-control"
+			       id="foxypay_token"
+			       maxlength="255"
+			       autocomplete="off"
+			       value="{{$merchants->foxypay_token}}"
+			       placeholder="Токен">
+
+		</div>
+		<div id="edit_foxypay_result"></div>
+		<div class="bs-callout bs-callout-info mt-10">
+			<h5>
+				<a target="_blank" href="https://github.com/twileck/gameCMSmodule">
+					<span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции
+				</a>
+			</h5>
+			<table>
+				<tr>
+					<td style="text-align: right">URL оповещения:</td>
+					<td>&nbsp&nbsp<b>{full_site_host}purse?foxypay=pay</b>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: right">URL успешной оплаты:</td>
+					<td>&nbsp&nbsp<b>{full_site_host}purse/success</b>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: right">URL неуспешной оплаты:</td>
+					<td>&nbsp&nbsp<b>{full_site_host}purse/fail</b>
+					</td>
+				</tr>
+			</table>
 		</div>
 	</div>
-	<div class="form-group mb-10">
-        <b> Валюта каси на FoxyPay</b>
-        <div class="form-group">
-            <div class="btn-group" data-toggle="buttons">
-                <label class="btn btn-default {if($merchants->foxypay_currency == 'UAH')} active {/if}"
-                       onclick="change_value('config__bank','foxypay_currency','UAH','1');">
-                    <input type="radio">
-                    UAH
-                </label>
-    
-                <label class="btn btn-default {if($merchants->foxypay_currency == 'USD')} active {/if}"
-                       onclick="change_value('config__bank','foxypay_currency','USD','1');">
-                    <input type="radio">
-                    USD
-                </label>
-    
-                <label class="btn btn-default {if($merchants->foxypay_currency == 'EUR')} active {/if}"
-                       onclick="change_value('config__bank','foxypay_currency','EUR','1');">
-                    <input type="radio">
-                    EUR
-                </label>
-            </div>
-        </div>
-    </div>	
-	<div class="form-group mb-10">
-        <b> Валюта сайта </b>
-        <div class="form-group">
-            <div class="btn-group" data-toggle="buttons">
-              
-				<label class="btn btn-default {if($merchants->site_currency == 'UAH')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','UAH','1');">
-                    <input type="radio">
-                    UAH
-                </label>
-    
-                <label class="btn btn-default {if($merchants->site_currency == 'USD')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','USD','1');">
-                    <input type="radio">
-                    USD
-                </label>
-    
-                <label class="btn btn-default {if($merchants->site_currency == 'EUR')} active {/if}"
-                       onclick="change_value('config__bank','site_currency','EUR','1');">
-                    <input type="radio">
-                    EUR
-                </label>
-            </div>
-        </div>
-    </div> 	
-	<div class="input-group">
-		<span class="input-group-btn">
-			<button class="btn btn-default pd-23-12" type="button"
-					onclick="editFoxyPaySystem();">
-				Изменить
-			</button>
-		</span>
-		<input type="text"
-				class="form-control"
-				id="foxypay_token"
-				maxlength="255"
-				autocomplete="off"
-				value="{{$merchants->foxypay_token}}"
-				placeholder="Токен">
-	</div>
-	<div id="edit_foxypay_result"></div>
-	<div class="bs-callout bs-callout-info mt-10">
-		<h5>
-			<a target="_blank" href="https://github.com/twileck/gameCMSmodule/tree/master/gamecms">
-				<span class="glyphicon glyphicon-link"></span> Натисніть , щоб перейти до інструкції
-			</a>
-		</h5>
-		<table>
-			<tr>
-				<td style="text-align: right">URL оповіщення:</td>
-				<td>&nbsp&nbsp<b>{full_site_host}purse?foxypay=pay</b>
-				</td>
-			</tr>
-			<tr>
-				<td style="text-align: right">URL успішної оплати:</td>
-				<td>&nbsp&nbsp<b>{full_site_host}purse?result=success</b>
-				</td>
-			</tr>
-			<tr>
-				<td style="text-align: right">URL помилки:</td>
-				<td>&nbsp&nbsp<b>{full_site_host}purse?result=fail</b>
-				</td>
-			</tr>
-		</table>
-	</div>
-</div>		
 ```

@@ -83,18 +83,18 @@ include_once (__DIR__.'/modules_foxypay.php');
  - Знайдіть масив, наприклад: або будь-який інший
 	
  ```php
-'ps'      		=> [
-		'title' => 'Paysera',
-		'name'  => 'Paysera',
-		'image' => 'paysera.jpg'
+'ps' => [
+   'title' => 'Paysera',
+   'name'  => 'Paysera',
+   'image' => 'paysera.jpg'
 ],
 ```
 > Після вставляємо код
 ```php
-'foxypay'      		=> [
-		'title' => 'Миттєве зарахування коштів у баланс.',
-		'name'  => 'FoxyPay',
-		'image' => 'foxypay.png'
+'foxypay' => [
+   'title' => 'Миттєве зарахування коштів у баланс.',
+   'name'  => 'FoxyPay',
+   'image' => 'foxypay.png'
 ],
 ```
 
@@ -106,14 +106,14 @@ include_once (__DIR__.'/modules_foxypay.php');
 ```php
 if(isset($_POST['editFoxyPaySystem'])) {
 	$foxypay_token = check(trim($_POST['foxypay_token']), null);
-
+	
 	if(empty($foxypay_token)) {
 		exit('<p class="text-danger">Вы заполнили не все поля!</p>');
 	}
-
+	
 	$STH = $pdo->prepare("UPDATE config__bank SET foxypay_token=:foxypay_token LIMIT 1");
 	write_log("Отредактирован FoxyPay");
-
+	
 	$STH->execute([':foxypay_token' => $foxypay_token]);
 	exit('<p class="text-success">Настройки изменены!</p>');
 }

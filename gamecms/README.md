@@ -209,63 +209,63 @@ function editFoxyPaySystem() {
 - Між ними ставимо наступний код
 ```html
 <div class="block">
-		<div class="block_head">
-			FoxyPay
-		</div>
-		<div class="form-group mb-10">
-			<div class="btn-group" data-toggle="buttons">
-				<label class="btn btn-default {if($merchants->foxypay == 1)} active {/if}"
-				       onclick="change_value('config__bank','foxypay','1','1');">
-					<input type="radio">
-					Включить
-				</label>
-				<label class="btn btn-default {if($merchants->foxypay == 2)} active {/if}"
-				       onclick="change_value('config__bank','foxypay','2','1');">
-					<input type="radio">
-					Выключить
-				</label>
-			</div>
-		</div>
-		<div class="input-group">
-			<span class="input-group-btn">
-				<button class="btn btn-default" type="button"
-				        onclick="editFoxyPayPaymentSystem();">
-					Изменить
-				</button>
-			</span>
-			<input type="text"
-			       class="form-control"
-			       id="foxypay_token"
-			       maxlength="255"
-			       autocomplete="off"
-			       value="{{$merchants->foxypay_token}}"
-			       placeholder="Токен">
-
-		</div>
-		<div id="edit_foxypay_result"></div>
-		<div class="bs-callout bs-callout-info mt-10">
-			<h5>
-				<a target="_blank" href="https://github.com/twileck/gameCMSmodule">
-					<span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции
-				</a>
-			</h5>
-			<table>
-				<tr>
-					<td style="text-align: right">URL оповещения:</td>
-					<td>&nbsp&nbsp<b>{full_site_host}purse?foxypay=pay</b>
-					</td>
-				</tr>
-				<tr>
-					<td style="text-align: right">URL успешной оплаты:</td>
-					<td>&nbsp&nbsp<b>{full_site_host}purse/success</b>
-					</td>
-				</tr>
-				<tr>
-					<td style="text-align: right">URL неуспешной оплаты:</td>
-					<td>&nbsp&nbsp<b>{full_site_host}purse/fail</b>
-					</td>
-				</tr>
-			</table>
+	<div class="block_head">
+		FoxyPay
+	</div>
+	<div class="form-group mb-10">
+		<div class="btn-group" data-toggle="buttons">
+			<label class="btn btn-default {if($merchants->foxypay == 1)} active {/if}"
+			       onclick="change_value('config__bank','foxypay','1','1');">
+				<input type="radio">
+				Включить
+			</label>
+			<label class="btn btn-default {if($merchants->foxypay == 2)} active {/if}"
+			       onclick="change_value('config__bank','foxypay','2','1');">
+				<input type="radio">
+				Выключить
+			</label>
 		</div>
 	</div>
+	<div class="input-group">
+		<span class="input-group-btn">
+			<button class="btn btn-default" type="button"
+				onclick="editFoxyPayPaymentSystem();">
+				Изменить
+			</button>
+		</span>
+		<input type="text"
+		       class="form-control"
+		       id="foxypay_token"
+		       maxlength="255"
+		       autocomplete="off"
+		       value="{{$merchants->foxypay_token}}"
+		       placeholder="Токен">
+
+	</div>
+	<div id="edit_foxypay_result"></div>
+	<div class="bs-callout bs-callout-info mt-10">
+		<h5>
+			<a target="_blank" href="https://github.com/twileck/gameCMSmodule">
+				<span class="glyphicon glyphicon-link"></span> Нажмите для перехода к инструкции
+			</a>
+		</h5>
+		<table>
+			<tr>
+				<td style="text-align: right">URL оповещения:</td>
+				<td>&nbsp&nbsp<b>{full_site_host}purse?foxypay=pay</b>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: right">URL успешной оплаты:</td>
+				<td>&nbsp&nbsp<b>{full_site_host}purse/success</b>
+				</td>
+			</tr>
+			<tr>
+				<td style="text-align: right">URL неуспешной оплаты:</td>
+				<td>&nbsp&nbsp<b>{full_site_host}purse/fail</b>
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
 ```

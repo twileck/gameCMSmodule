@@ -37,47 +37,29 @@ systemctl reload nginx
 ```php
 case 'foxypay':
 	if (empty($cashierSettings->foxypay_token)) {
-		error_log('Error: Спосіб оплати не налаштований');
-		throw new Exception('Спосіб оплати не налаштований');
+	    throw new Exception('Спосіб оплати не налаштований');
 	}
-
-	if($cashierSettings->site_currency == "RUB"){
-		if($cashierSettings->foxypay_currency == "UAH"){
-			$amount = ($amount / (new CurrencyConverter)->getCurrencyRUB("UAH", 2)) * 1000;
-		}if($cashierSettings->foxypay_currency == "USD"){
-			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("USD", 0);
-			$amount = number_format($amount, 2, '.', '');
-			$amount = $amount * 100;
-		}if($cashierSettings->foxypay_currency == "EUR"){
-			$amount = $amount / (new CurrencyConverter)->getCurrencyRUB("EUR", 3);
-			$amount = number_format($amount, 3, '.', '');
-			$amount = $amount * 100;
-		}
-	}else{
-		$amount = $amount * 100;
-	}
-
+	
+	$data = [
+	    'amount' => $amount * 100,
+	    'description' => $orderDesc,
+	    'webhook_url' => $full_site_host.'purse?foxypay=pay',
+	    'success_url' => $full_site_host.'purse/success',
+	    'fail_url' => $full_site_host.'purse/fail',
+	    'info' => user()->id,
+	];
+	
 	$curl = new Curl();
 	$curl->setHeader('token', $cashierSettings->foxypay_token);
-
-	$curl->post('https://foxypay.net/api/payment', [
-		'amount' => $amount,
-		'description' => $orderDesc,
-		'webhook_url' => $full_site_host . 'purse?foxypay=pay',
-		'success_url' => $full_site_host . 'purse?result=success',
-		'fail_url' => $full_site_host . 'purse?result=fail',
-		'info' => user()->id,
-	]);
-
-	$response = json_decode($curl->response, true);
-
-	if (empty($response['redirect_url'])) {
-		error_log('Error: Немає посилання');
-		throw new Exception("Немає посилання");
+	$curl->post('https://foxypay.net/api/payment', $data);
+	$response = json_decode($curl->rawResponse, true);
+	if (false === $response['success']) {
+	    throw new Exception($response['err']);
 	}
-
+	
 	Payments::showLink($response['redirect_url']);
-break;
+	
+	break;
 
 ```
 

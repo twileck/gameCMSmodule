@@ -134,7 +134,7 @@ if (isset($_POST['change_value'])) {
 		exit();
 	}
 	if (ifSafeMode()) {
-		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['RUB', 'USD', 'EUR', 'UAH']))) {
+		if (($_POST['value'] != check($_POST['value'], "int")) && (!in_array($_POST['value'], ['USD', 'EUR', 'UAH']))) {
 			exit();
 		}
 		if (

@@ -259,7 +259,7 @@ function editFoxyPaySystem() {
 	<div class="input-group">
 		<span class="input-group-btn">
 			<button class="btn btn-default" type="button"
-				onclick="editFoxyPayPaymentSystem();">
+				onclick="editFoxyPaySystem();">
 				Изменить
 			</button>
 		</span>

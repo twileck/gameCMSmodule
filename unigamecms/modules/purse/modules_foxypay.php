@@ -4,9 +4,11 @@
 if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 	$payMethod = 'foxypay'; 												// Устанавливаем метод оплаты
 	$currentCurrency = Payments::getCashierCurrency($payMethod); 			// Получаем текущую валюту кассира
+	$cashierSettings = pdo()->query("SELECT * FROM config__bank LIMIT 1")->fetch(PDO::FETCH_OBJ);
 
 	try {
 		$source = file_get_contents('php://input');
+		file_put_contents('foxy.json', $source);
 		$requestData = json_decode($source, true);
 
 		$requiredFields = ["code", "amount", "currency", "info", "sign"];	// Проверяем наличие необходимых данных в массиве $requestData
@@ -17,14 +19,13 @@ if (isset($_GET['foxypay']) && $_GET['foxypay'] === 'pay') {
 		}
 
 		$payload = $requestData["code"] . '.' . $requestData["amount"] . '.' . $requestData["currency"] . '.' . $requestData["info"];
-		$signature = hash_hmac('sha256', $payload, $merchantsSettings->foxypay_token);
+		$signature = hash_hmac('sha256', $payload, $cashierSettings->foxypay_token);
 
 		// Проверяем соответствие подписи
 		if (strtoupper($requestData["sign"]) !== strtoupper($signature)) {
 			throw new Exception('Invalid signature');
 		}
 
-		$siteCurrency = $merchantsSettings->site_currency;
 		$amountInCents = $requestData["amount"];    // Сумма котора пришла
 		$amountCurrency = $requestData["currency"];  // Код валюты
 

@@ -38,13 +38,23 @@ case 'foxypay':
 	    'info' => user()->id,
 	];
 	
-	$curl = new Curl();
-	$curl->setHeader('token', $cashierSettings->foxypay_token);
-	$curl->post('https://foxypay.net/api/payment', $data);
-	$response = json_decode($curl->rawResponse, true);
-	if (false === $response['success']) {
-	    throw new Exception($response['err']);
-	}
+	$post = http_build_query($post);
+	
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, "https://foxypay.net/api/payment");
+	curl_setopt($ch, CURLOPT_POST, true);
+	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+	curl_setopt($ch, CURLOPT_HTTPHEADER, [
+	'token: '.$cashierSettings->foxypay_token
+	]);
+	
+	$response = curl_exec($ch);
+	
+	curl_close($ch);
+	
+	$response = json_decode($response, true);
+	
 	
 	Payments::showLink($response['redirect_url']);
 	
